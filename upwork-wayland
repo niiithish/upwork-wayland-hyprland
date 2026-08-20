@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Launch Upwork on Hyprland/Wayland with working time-tracker screenshots.
+set -euo pipefail
+
+DIR="${UPWORK_WAYLAND_DIR:-$HOME/.local/share/upwork-wayland}"
+SO="$DIR/gdk-screenshotter.so"
+UPWORK="${UPWORK:-/opt/Upwork/upwork}"
+
+if [[ ! -x "$UPWORK" ]]; then
+  echo "Upwork binary not found at $UPWORK" >&2
+  echo "Install the Upwork desktop app first, then rerun this wrapper." >&2
+  exit 1
+fi
+if [[ ! -f "$SO" ]]; then
+  echo "Missing $SO — rebuild with: make -C $DIR && re-run install.sh" >&2
+  exit 1
+fi
+if [[ -z "${DISPLAY:-}" ]]; then
+  echo "XWayland is not available (DISPLAY is unset)." >&2
+  echo "Hyprland needs xwayland enabled for the Upwork UI itself." >&2
+  exit 1
+fi
+
+# Already a real X11 session: no hook needed.
+if [[ -z "${WAYLAND_DISPLAY:-}" && "${XDG_SESSION_TYPE:-}" == "x11" ]]; then
+  exec "$UPWORK" "$@"
+fi
+
+# grim writes to the path we pass as the last argument.
+export UPWORK_SCREENSHOT_COMMAND="${UPWORK_SCREENSHOT_COMMAND:-grim -t png}"
+
+# Make Upwork take the X11/GDK screenshot path instead of the grey Wayland stub.
+export XDG_SESSION_TYPE=x11
+export WAYLAND_DISPLAY_REAL="${WAYLAND_DISPLAY:-}"
+unset WAYLAND_DISPLAY
+export GDK_BACKEND=x11
+export ELECTRON_OZONE_PLATFORM_HINT=x11
+
+if [[ -n "${LD_PRELOAD:-}" ]]; then
+  export LD_PRELOAD="$SO:$LD_PRELOAD"
+else
+  export LD_PRELOAD="$SO"
+fi
+
+exec "$UPWORK" "$@"
