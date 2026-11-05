@@ -16,4 +16,4 @@ rm -f "$APPS/upwork.desktop"
 rm -rf "$PREFIX"
 update-desktop-database "$APPS" 2>/dev/null || true
 echo "Removed the Upwork Wayland screenshot wrapper."
-echo "The stock Upwork app at /opt/Upwork is unchanged."
+echo "The stock Upwork app (/usr/bin/upwork) is unchanged."

@@ -33,8 +33,8 @@ need_pkg gdk-pixbuf-2.0 gdk-pixbuf2
 need_pkg x11 libx11
 need_pkg xscrnsaver libxss
 
-if [[ ! -x /opt/Upwork/upwork ]]; then
-  echo "Warning: /opt/Upwork/upwork not found yet." >&2
+if [[ ! -x /usr/bin/upwork && ! -x /opt/Upwork/upwork ]]; then
+  echo "Warning: Upwork launcher not found at /usr/bin/upwork or /opt/Upwork/upwork." >&2
   echo "Install the Upwork desktop app, then launch it with: upwork" >&2
 fi
 

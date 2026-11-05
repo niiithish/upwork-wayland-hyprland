@@ -8,7 +8,7 @@ This repo keeps you on Hyprland. It does **not** switch to GNOME or X11.
 
 ## After an Omarchy reset
 
-Install the Upwork desktop app first (`/opt/Upwork/upwork`), then:
+Install the Upwork desktop app first (`/usr/bin/upwork`, AUR `upwork` package), then:
 
 ```bash
 git clone https://github.com/niiithish/upwork-wayland-hyprland.git
@@ -42,7 +42,7 @@ user's home + this git repo.
 
 ### Why the grey image happens
 
-Upwork's native module `/opt/Upwork/uta_native.node` (linked from the Electron
+Upwork's native module `/usr/lib/upwork/uta_native.node` (linked from the Electron
 app) has an `isWayland` check. On Wayland it **does not capture**; it uploads
 that placeholder on purpose.
 
@@ -88,7 +88,7 @@ A live Upwork memo still has to be checked after login.
   Screenshot daemon. The GDK intercept is the path that matches
   `uta_native.node`.
 - Do not use flameshot (upstream default). Omarchy already has **grim**.
-- Do not edit `/usr/share/omarchy/` or `/opt/Upwork/` binaries.
+- Do not edit `/usr/share/omarchy/` or Upwork package binaries.
 
 ### Files this install creates
 
@@ -100,18 +100,18 @@ A live Upwork memo still has to be checked after login.
 | `~/.local/bin/upwork` | symlink → launcher (`~/.local/bin` is first on Omarchy PATH) |
 | `~/.local/share/applications/upwork.desktop` | overrides `/usr/share/applications/upwork.desktop` |
 
-Wrapper always execs `/opt/Upwork/upwork` (never itself).
+Wrapper always execs `/usr/bin/upwork` (or `/opt/Upwork/upwork` if that older layout is still present). Never execs itself.
 
 ### Restore procedure for an agent
 
 1. Confirm session: `echo $XDG_SESSION_TYPE $XDG_CURRENT_DESKTOP` → `wayland Hyprland`.
-2. Confirm Upwork: `test -x /opt/Upwork/upwork`. If missing, user must install
-   the official Linux app first.
+2. Confirm Upwork: `test -x /usr/bin/upwork`. If missing, user must install
+   the AUR `upwork` package first.
 3. Clone this repo if needed, `cd` into it, run `./install.sh`.
 4. If deps fail, on Omarchy/Arch:
    `sudo pacman -S gcc make pkgconf gdk-pixbuf2 libx11 libxss grim jq`
    (use a real terminal for sudo; do not hang an agent on a password prompt).
-5. `pkill -f /opt/Upwork/upwork` if it is already running.
+5. `pkill -f '/usr/lib/upwork/app.asar'` if it is already running.
 6. User starts tracker with `upwork`.
 7. Verify after a memo: `cat /tmp/upwork-wayland.log` should contain
    `screenshot pixbuf WxH`. If grim failed, `WAYLAND_DISPLAY_REAL` was empty
@@ -131,7 +131,7 @@ make && ./install.sh
 ./uninstall.sh
 ```
 
-Removes only the wrapper. Stock `/opt/Upwork` stays.
+Removes only the wrapper. Stock `/usr/bin/upwork` stays.
 
 ### Caveats
 
@@ -147,7 +147,7 @@ Usually already installed:
 sudo pacman -S gcc make pkgconf gdk-pixbuf2 libx11 libxss grim jq
 ```
 
-Plus Hyprland (`hyprctl`) and Upwork at `/opt/Upwork/upwork`.
+Plus Hyprland (`hyprctl`) and Upwork at `/usr/bin/upwork`.
 
 ## Credits
 

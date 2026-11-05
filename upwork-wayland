@@ -4,7 +4,17 @@ set -euo pipefail
 
 DIR="${UPWORK_WAYLAND_DIR:-$HOME/.local/share/upwork-wayland}"
 SO="$DIR/gdk-screenshotter.so"
-UPWORK="${UPWORK:-/opt/Upwork/upwork}"
+
+# Prefer the AUR launcher (absolute path: ~/.local/bin/upwork shadows /usr/bin/upwork).
+if [[ -z "${UPWORK:-}" ]]; then
+  if [[ -x /usr/bin/upwork ]]; then
+    UPWORK=/usr/bin/upwork
+  elif [[ -x /opt/Upwork/upwork ]]; then
+    UPWORK=/opt/Upwork/upwork
+  else
+    UPWORK=/usr/bin/upwork
+  fi
+fi
 
 if [[ ! -x "$UPWORK" ]]; then
   echo "Upwork binary not found at $UPWORK" >&2
@@ -36,10 +46,18 @@ unset WAYLAND_DISPLAY
 export GDK_BACKEND=x11
 export ELECTRON_OZONE_PLATFORM_HINT=x11
 
+# Omarchy uses xwayland.force_zero_scaling, so Electron must self-scale.
+# Monitor scale 1.6 is a bit large for this UI; 1.25 sits closer to native
+# density. Override with UPWORK_SCALE if needed.
+scale="${UPWORK_SCALE:-1.25}"
+# Avoid GTK double-scaling on top of Electron's device scale factor.
+export GDK_SCALE=1
+unset GDK_DPI_SCALE
+
 if [[ -n "${LD_PRELOAD:-}" ]]; then
   export LD_PRELOAD="$SO:$LD_PRELOAD"
 else
   export LD_PRELOAD="$SO"
 fi
 
-exec "$UPWORK" "$@"
+exec "$UPWORK" --force-device-scale-factor="${scale}" "$@"
